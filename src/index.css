@@ -2,12 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* FideliPromo Design System - Loyalty & Rewards Platform */
 
 @layer base {
   :root {
+    /* Brand Colors - Purple/Blue gradient for trust and innovation */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -17,26 +16,40 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary: Purple-blue for loyalty/rewards feeling */
+    --primary: 250 70% 60%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary: Light purple for accents */
+    --secondary: 250 30% 96%;
+    --secondary-foreground: 250 70% 20%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 250 20% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 250 40% 94%;
+    --accent-foreground: 250 70% 25%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 250 70% 60%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* FideliPromo specific gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(250 70% 60%), hsl(260 80% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(250 30% 96%), hsl(260 20% 98%));
+    --gradient-hero: linear-gradient(135deg, hsl(250 70% 60% / 0.1), hsl(260 80% 65% / 0.05));
+    
+    /* Shadows for depth */
+    --shadow-primary: 0 10px 30px -10px hsl(250 70% 60% / 0.3);
+    --shadow-card: 0 4px 20px -4px hsl(250 30% 20% / 0.1);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     --sidebar-background: 0 0% 98%;
 
@@ -56,6 +69,7 @@ All colors MUST be HSL.
   }
 
   .dark {
+    /* Dark theme for FideliPromo */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -65,7 +79,8 @@ All colors MUST be HSL.
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    /* Lighter primary for dark mode visibility */
+    --primary: 250 70% 65%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -82,7 +97,12 @@ All colors MUST be HSL.
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 250 70% 65%;
+    
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(250 70% 65%), hsl(260 80% 70%));
+    --gradient-secondary: linear-gradient(135deg, hsl(217.2 32.6% 17.5%), hsl(222.2 84% 4.9%));
+    --gradient-hero: linear-gradient(135deg, hsl(250 70% 65% / 0.15), hsl(260 80% 70% / 0.1));
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
