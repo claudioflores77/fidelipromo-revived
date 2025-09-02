@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,20 @@ import { Gift, Users, TrendingUp, CreditCard, Star, ArrowRight } from "lucide-re
 
 const Index = () => {
   const [selectedPlan, setSelectedPlan] = useState<'starter' | 'pro' | 'enterprise'>('starter');
+  const navigate = useNavigate();
+
+  const handlePlanSelection = (planId: 'starter' | 'pro' | 'enterprise') => {
+    setSelectedPlan(planId);
+    // Para el plan starter (gratuito), redirigir a registro
+    if (planId === 'starter') {
+      navigate('/register');
+    } else {
+      // Para planes pagos, mostrar proceso de pago (implementar más tarde)
+      console.log(`Plan seleccionado: ${planId}`);
+      // Por ahora, redirigir a registro también
+      navigate('/register');
+    }
+  };
 
   const plans = [
     {
@@ -99,8 +114,12 @@ const Index = () => {
             </h1>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost">Iniciar Sesión</Button>
-            <Button>Empezar Gratis</Button>
+            <Button variant="ghost" asChild>
+              <Link to="/login">Iniciar Sesión</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/register">Empezar Gratis</Link>
+            </Button>
           </div>
         </div>
       </header>
@@ -122,12 +141,14 @@ const Index = () => {
             integral de recompensas, cashback y referidos.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="px-8">
-              Comenzar Prueba Gratuita
-              <ArrowRight className="ml-2 w-4 h-4" />
+            <Button size="lg" className="px-8" asChild>
+              <Link to="/register">
+                Comenzar Prueba Gratuita
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
             </Button>
-            <Button variant="outline" size="lg" className="px-8">
-              Ver Demo
+            <Button variant="outline" size="lg" className="px-8" asChild>
+              <Link to="/demo">Ver Demo</Link>
             </Button>
           </div>
         </div>
@@ -203,6 +224,7 @@ const Index = () => {
                   <Button 
                     className="w-full" 
                     variant={plan.popular ? "default" : "outline"}
+                    onClick={() => handlePlanSelection(plan.id as 'starter' | 'pro' | 'enterprise')}
                   >
                     {plan.id === 'starter' ? 'Comenzar Gratis' : 'Elegir Plan'}
                   </Button>
