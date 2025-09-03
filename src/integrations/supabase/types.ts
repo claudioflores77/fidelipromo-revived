@@ -14,16 +14,327 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          address: string | null
+          business_name: string
+          business_type: string
+          cashback_percentage: number | null
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          phone: string | null
+          referral_level_1_percentage: number | null
+          referral_level_2_percentage: number | null
+          referral_level_3_percentage: number | null
+          subscription_plan: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          business_name: string
+          business_type: string
+          cashback_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          phone?: string | null
+          referral_level_1_percentage?: number | null
+          referral_level_2_percentage?: number | null
+          referral_level_3_percentage?: number | null
+          subscription_plan?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          business_name?: string
+          business_type?: string
+          cashback_percentage?: number | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          phone?: string | null
+          referral_level_1_percentage?: number | null
+          referral_level_2_percentage?: number | null
+          referral_level_3_percentage?: number | null
+          subscription_plan?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      customer_balances: {
+        Row: {
+          available_balance: number | null
+          business_id: string
+          created_at: string
+          customer_id: string
+          id: string
+          total_earned: number | null
+          total_redeemed: number | null
+          updated_at: string
+        }
+        Insert: {
+          available_balance?: number | null
+          business_id: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          total_earned?: number | null
+          total_redeemed?: number | null
+          updated_at?: string
+        }
+        Update: {
+          available_balance?: number | null
+          business_id?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          total_earned?: number | null
+          total_redeemed?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_balances_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_balances_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+          referral_code: string
+          referred_by_code: string | null
+          referred_by_customer_id: string | null
+          total_cashback_earned: number | null
+          total_referral_earnings: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string | null
+          referral_code: string
+          referred_by_code?: string | null
+          referred_by_customer_id?: string | null
+          total_cashback_earned?: number | null
+          total_referral_earnings?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string | null
+          referral_code?: string
+          referred_by_code?: string | null
+          referred_by_customer_id?: string | null
+          total_cashback_earned?: number | null
+          total_referral_earnings?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_referred_by_customer_id_fkey"
+            columns: ["referred_by_customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_earnings: {
+        Row: {
+          amount: number
+          business_id: string
+          created_at: string
+          id: string
+          level: Database["public"]["Enums"]["referral_level"]
+          percentage: number
+          referred_customer_id: string
+          referrer_customer_id: string
+          transaction_id: string
+        }
+        Insert: {
+          amount: number
+          business_id: string
+          created_at?: string
+          id?: string
+          level: Database["public"]["Enums"]["referral_level"]
+          percentage: number
+          referred_customer_id: string
+          referrer_customer_id: string
+          transaction_id: string
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          created_at?: string
+          id?: string
+          level?: Database["public"]["Enums"]["referral_level"]
+          percentage?: number
+          referred_customer_id?: string
+          referrer_customer_id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_earnings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_earnings_referred_customer_id_fkey"
+            columns: ["referred_customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_earnings_referrer_customer_id_fkey"
+            columns: ["referrer_customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_earnings_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          business_id: string
+          cashback_amount: number
+          cashback_percentage: number
+          created_at: string
+          customer_id: string
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          business_id: string
+          cashback_amount?: number
+          cashback_percentage: number
+          created_at?: string
+          customer_id: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_type?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          business_id?: string
+          cashback_amount?: number
+          cashback_percentage?: number
+          created_at?: string
+          customer_id?: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      referral_level: "level_1" | "level_2" | "level_3"
+      transaction_status: "pending" | "completed" | "cancelled"
+      user_type: "customer" | "business"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +461,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      referral_level: ["level_1", "level_2", "level_3"],
+      transaction_status: ["pending", "completed", "cancelled"],
+      user_type: ["customer", "business"],
+    },
   },
 } as const
