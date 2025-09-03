@@ -1,25 +1,17 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Gift, Users, TrendingUp, CreditCard, Star, ArrowRight } from "lucide-react";
+import { CheckCircle, Users, TrendingUp, Star, DollarSign, ArrowRight, Zap, Shield, Share2 } from "lucide-react";
 
 const Index = () => {
-  const [selectedPlan, setSelectedPlan] = useState<'starter' | 'pro' | 'enterprise'>('starter');
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handlePlanSelection = (planId: 'starter' | 'pro' | 'enterprise') => {
+  const handlePlanSelection = (planId: string) => {
     setSelectedPlan(planId);
-    // Para el plan starter (gratuito), redirigir a registro
-    if (planId === 'starter') {
-      navigate('/register');
-    } else {
-      // Para planes pagos, mostrar proceso de pago (implementar más tarde)
-      console.log(`Plan seleccionado: ${planId}`);
-      // Por ahora, redirigir a registro también
-      navigate('/register');
-    }
+    navigate(`/register?type=business&plan=${planId}`);
   };
 
   const plans = [
@@ -28,97 +20,129 @@ const Index = () => {
       name: 'Starter',
       price: '$29',
       period: '/mes',
-      description: 'Perfecto para pequeños negocios',
+      description: 'Perfecto para pequeños comercios que inician en fidelización',
       features: [
-        'Hasta 500 clientes',
-        'Sistema de puntos básico',
-        '3 tipos de recompensas',
-        'Dashboard básico',
+        'Hasta 100 clientes activos',
+        'Sistema básico de cashback',
+        'Referidos de 1 nivel',
+        'Reportes básicos',
         'Soporte por email'
       ],
-      popular: false
+      popular: false,
     },
     {
       id: 'pro',
-      name: 'Pro',
+      name: 'Professional',
       price: '$79',
       period: '/mes',
-      description: 'Ideal para negocios en crecimiento',
+      description: 'Ideal para comercios en crecimiento con mayor volumen',
       features: [
-        'Hasta 2,500 clientes',
-        'Sistema de puntos avanzado',
-        'Recompensas ilimitadas',
-        'Analytics completos',
-        'Programa de referidos',
-        'API acceso',
-        'Soporte prioritario'
+        'Hasta 500 clientes activos',
+        'Cashback personalizado por producto',
+        'Referidos multinivel (3 niveles)',
+        'Reportes avanzados y analytics',
+        'Promociones especiales',
+        'Soporte prioritario',
+        'Integración con POS'
       ],
-      popular: true
+      popular: true,
     },
     {
       id: 'enterprise',
       name: 'Enterprise',
       price: '$199',
       period: '/mes',
-      description: 'Para grandes empresas',
+      description: 'Para grandes comercios y cadenas con múltiples sucursales',
       features: [
         'Clientes ilimitados',
-        'Todas las funciones Pro',
-        'Integración personalizada',
-        'Manager dedicado',
-        'SLA garantizado',
-        'White-label disponible'
+        'Múltiples sucursales',
+        'Cashback avanzado con IA',
+        'Referidos multinivel ilimitados',
+        'Dashboard ejecutivo completo',
+        'API personalizada',
+        'Soporte dedicado 24/7',
+        'Integración completa con sistemas'
       ],
-      popular: false
-    }
+      popular: false,
+    },
   ];
 
   const stats = [
     {
       icon: Users,
-      title: "Clientes Activos",
-      value: "12,345",
-      growth: "+23% este mes"
+      title: "Comercios Activos",
+      value: "500+",
+      growth: "+25% este mes"
     },
     {
-      icon: Gift,
-      title: "Recompensas Canjeadas",
-      value: "1,847",
-      growth: "+18% este mes"
+      icon: DollarSign,
+      title: "Cashback Distribuido",
+      value: "$45,000",
+      growth: "+40% vs mes anterior"
     },
     {
       icon: TrendingUp,
       title: "Ventas Incrementales",
-      value: "$45,230",
-      growth: "+35% este mes"
+      value: "35%",
+      growth: "promedio por comercio"
     },
     {
-      icon: CreditCard,
-      title: "Transacciones",
-      value: "8,921",
-      growth: "+28% este mes"
+      icon: Star,
+      title: "Satisfacción Cliente",
+      value: "4.8/5",
+      growth: "98% lo recomiendan"
+    }
+  ];
+
+  const features = [
+    {
+      icon: Zap,
+      title: "Cashback Inteligente",
+      description: "Cada compra genera un porcentaje de vuelta que se acumula como saldo para el próximo consumo en tu negocio."
+    },
+    {
+      icon: Share2,
+      title: "Referidos Multinivel",
+      description: "Tus clientes se convierten en embajadores. Hasta 3 niveles de comisiones por referir nuevos compradores."
+    },
+    {
+      icon: Shield,
+      title: "Sin Apps que Descargar",
+      description: "Web App progresiva (PWA) que funciona desde cualquier navegador y se puede instalar como una app nativa."
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <Star className="w-5 h-5 text-primary-foreground" />
+      <header className="bg-card/80 backdrop-blur-md border-b sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-primary to-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-lg">F</span>
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
               FideliPromo
-            </h1>
+            </span>
           </div>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" asChild>
-              <Link to="/login">Iniciar Sesión</Link>
+          <div className="flex space-x-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/login')}
+            >
+              Iniciar Sesión
             </Button>
-            <Button asChild>
-              <Link to="/register">Empezar Gratis</Link>
+            <Button 
+              onClick={() => navigate('/register?type=customer')}
+              variant="outline"
+              className="hidden sm:inline-flex"
+            >
+              Soy Cliente
+            </Button>
+            <Button 
+              onClick={() => navigate('/register?type=business')}
+            >
+              Soy Comercio
             </Button>
           </div>
         </div>
@@ -127,52 +151,62 @@ const Index = () => {
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
-          <Badge variant="secondary" className="mb-6">
-            🚀 Plataforma de Fidelización #1 en LATAM
-          </Badge>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
-            Fideliza Clientes.<br />
-            <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              Incrementa Ventas.
-            </span>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+            Transforma cada cliente en tu mejor promotor
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Transforma cada transacción en una oportunidad de fidelización con nuestro sistema 
-            integral de recompensas, cashback y referidos.
+            FideliPromo fusiona cashback inteligente con referidos multinivel. 
+            Más que fidelización: un ecosistema de crecimiento orgánico para tu negocio en Resistencia.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="px-8" asChild>
-              <Link to="/register">
-                Comenzar Prueba Gratuita
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/register?type=business')}
+              className="text-lg px-8 py-4"
+            >
+              Prueba Gratuita 14 Días
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button variant="outline" size="lg" className="px-8" asChild>
-              <Link to="/demo">Ver Demo</Link>
+            <Button 
+              size="lg" 
+              variant="outline"
+              onClick={() => navigate('/demo')}
+              className="text-lg px-8 py-4"
+            >
+              Ver Demo
             </Button>
+          </div>
+
+          {/* Features Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+            {features.map((feature, index) => (
+              <Card key={index} className="text-center border-none shadow-lg">
+                <CardContent className="pt-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <feature.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 bg-card/50">
+      <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Resultados que Hablan por Sí Mismos</h2>
-            <p className="text-muted-foreground">Datos promedio de nuestros clientes en los últimos 6 meses</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <Card key={index} className="border-border/50 bg-background/50 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <stat.icon className="w-8 h-8 text-primary" />
-                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
-                      {stat.growth}
-                    </Badge>
+              <Card key={index} className="text-center border-none shadow-lg">
+                <CardContent className="pt-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    <stat.icon className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="text-sm text-muted-foreground mb-1">{stat.title}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <div className="text-3xl font-bold mb-2">{stat.value}</div>
+                  <div className="text-sm text-muted-foreground mb-2">{stat.title}</div>
+                  <div className="text-xs text-green-600 font-medium">{stat.growth}</div>
                 </CardContent>
               </Card>
             ))}
@@ -181,74 +215,98 @@ const Index = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4" id="pricing">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Planes Diseñados para tu Crecimiento</h2>
-            <p className="text-muted-foreground">Comienza gratis y escala según tus necesidades</p>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Planes diseñados para comercios de todos los tamaños
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Desde pequeños emprendimientos hasta grandes cadenas. 
+              Comienza gratis y escala según tu crecimiento.
+            </p>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {plans.map((plan) => (
+            {plans.map((plan, index) => (
               <Card 
                 key={plan.id} 
-                className={`relative border-2 transition-all duration-300 hover:scale-105 ${
+                className={`relative overflow-hidden transition-all duration-300 hover:shadow-2xl ${
                   plan.popular 
-                    ? 'border-primary shadow-lg shadow-primary/10' 
-                    : 'border-border/50 hover:border-primary/50'
+                    ? 'border-2 border-primary shadow-xl scale-105' 
+                    : 'hover:border-primary/30'
                 }`}
               >
                 {plan.popular && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
+                  <Badge className="absolute top-4 right-4 bg-primary">
                     Más Popular
                   </Badge>
                 )}
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                  <div className="flex items-baseline justify-center mt-4">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                  <CardDescription className="text-sm min-h-[60px]">
+                    {plan.description}
+                  </CardDescription>
+                  <div className="flex items-baseline space-x-1">
                     <span className="text-4xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground ml-1">{plan.period}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-3 mb-6">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-sm">
-                        <div className="w-4 h-4 bg-primary/20 rounded-full flex items-center justify-center mr-3">
-                          <div className="w-2 h-2 bg-primary rounded-full" />
-                        </div>
-                        {feature}
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button 
-                    className="w-full" 
-                    variant={plan.popular ? "default" : "outline"}
-                    onClick={() => handlePlanSelection(plan.id as 'starter' | 'pro' | 'enterprise')}
-                  >
-                    {plan.id === 'starter' ? 'Comenzar Gratis' : 'Elegir Plan'}
-                  </Button>
                 </CardContent>
+                <CardFooter>
+                  <Button 
+                    className={`w-full ${
+                      plan.popular
+                        ? ''
+                        : 'variant-secondary'
+                    }`}
+                    variant={plan.popular ? 'default' : 'secondary'}
+                    onClick={() => handlePlanSelection(plan.id)}
+                  >
+                    Comenzar con {plan.name}
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button 
+              variant="outline"
+              size="lg"
+              onClick={() => navigate('/register?type=customer')}
+              className="mx-auto"
+            >
+              ¿Eres cliente? Regístrate aquí para ganar cashback
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/50 bg-card/30 py-12 px-4">
+      <footer className="bg-muted py-12 px-4">
         <div className="container mx-auto text-center">
-          <div className="flex items-center justify-center space-x-2 mb-6">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <Star className="w-5 h-5 text-primary-foreground" />
+          <div className="flex items-center justify-center space-x-3 mb-4">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold">F</span>
             </div>
-            <h3 className="text-xl font-bold">FideliPromo</h3>
+            <span className="text-2xl font-bold">FideliPromo</span>
           </div>
           <p className="text-muted-foreground mb-4">
-            La plataforma de fidelización que impulsa el crecimiento de tu negocio
+            Tu aliado estratégico en fidelización y crecimiento
           </p>
           <p className="text-sm text-muted-foreground">
-            © 2025 FideliPromo. Todos los derechos reservados.
+            © 2024 FideliPromo. Todos los derechos reservados. Hecho en Resistencia, Chaco.
           </p>
         </div>
       </footer>
