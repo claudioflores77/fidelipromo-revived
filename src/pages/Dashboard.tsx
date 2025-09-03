@@ -1,9 +1,33 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, Gift, TrendingUp, CreditCard, Settings, Star } from "lucide-react";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user, userType, loading, signOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && (!user || userType !== 'business')) {
+      navigate('/login');
+    }
+  }, [user, userType, loading, navigate]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
   const stats = [
     {
       icon: Users,
@@ -52,6 +76,9 @@ const Dashboard = () => {
             <Badge variant="secondary">Plan Starter</Badge>
             <Button variant="ghost" size="icon">
               <Settings className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" onClick={handleSignOut}>
+              Cerrar Sesión
             </Button>
           </div>
         </div>
