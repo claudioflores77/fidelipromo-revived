@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Gift, TrendingUp, CreditCard, Settings, Star } from "lucide-react";
+import { Users, Gift, TrendingUp, CreditCard, Settings, Star, UserPlus } from "lucide-react";
+import CustomerRegistrationForm from "@/components/CustomerRegistrationForm";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -109,6 +110,17 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Customer Registration Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-6">Registrar Nuevo Cliente</h2>
+          <CustomerRegistrationForm 
+            businessId="temp-business-id" 
+            onSuccess={() => {
+              // Optionally refresh data or show success message
+            }}
+          />
         </div>
 
         {/* Quick Actions */}

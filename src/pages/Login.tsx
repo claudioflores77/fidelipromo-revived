@@ -119,24 +119,18 @@ const Login = () => {
 
           <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              ¿No tienes cuenta?
+              ¿Eres comercio y no tienes cuenta?
             </p>
-            <div className="flex flex-col space-y-2">
-              <Button
-                variant="outline"
-                onClick={() => navigate('/register?type=customer')}
-                className="w-full"
-              >
-                Registrarse como Cliente
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/register?type=business')}
-                className="w-full"
-              >
-                Registrarse como Comercio
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/register/business')}
+              className="w-full"
+            >
+              Registrar mi Comercio
+            </Button>
+            <p className="text-xs text-muted-foreground mt-4">
+              ¿Eres cliente? Tu comercio te proporcionará acceso
+            </p>
           </div>
         </CardContent>
       </Card>
