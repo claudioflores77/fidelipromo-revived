@@ -130,19 +130,12 @@ const Index = () => {
               variant="ghost" 
               onClick={() => navigate('/login')}
             >
-              Iniciar Sesión
+              Iniciar Sesión (Clientes)
             </Button>
             <Button 
-              onClick={() => navigate('/register?type=customer')}
-              variant="outline"
-              className="hidden sm:inline-flex"
+              onClick={() => navigate('/register/business')}
             >
-              Soy Cliente
-            </Button>
-            <Button 
-              onClick={() => navigate('/register?type=business')}
-            >
-              Soy Comercio
+              Registrar Comercio
             </Button>
           </div>
         </div>
@@ -161,10 +154,10 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button 
               size="lg" 
-              onClick={() => navigate('/register?type=business')}
+              onClick={() => navigate('/register/business')}
               className="text-lg px-8 py-4"
             >
-              Prueba Gratuita 14 Días
+              Prueba Gratuita 30 Días
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button 
@@ -280,15 +273,9 @@ const Index = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Button 
-              variant="outline"
-              size="lg"
-              onClick={() => navigate('/register?type=customer')}
-              className="mx-auto"
-            >
-              ¿Eres cliente? Regístrate aquí para ganar cashback
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <p className="text-muted-foreground">
+              ¿Eres cliente? Tu comercio favorito te proporcionará acceso a la plataforma
+            </p>
           </div>
         </div>
       </section>
