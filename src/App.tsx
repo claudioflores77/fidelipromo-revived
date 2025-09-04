@@ -7,6 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import BusinessRegister from "./pages/BusinessRegister";
+import CustomerRegister from "./pages/CustomerRegister";
 import Demo from "./pages/Demo";
 import Dashboard from "./pages/Dashboard";
 import CustomerApp from "./pages/CustomerApp";
@@ -25,6 +27,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/register/customer" element={<CustomerRegister />} />
+            <Route path="/register/business" element={<BusinessRegister />} />
             <Route path="/demo" element={<Demo />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customer" element={<CustomerApp />} />
