@@ -6,66 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Users, TrendingUp, Star, DollarSign, ArrowRight, Zap, Shield, Share2 } from "lucide-react";
 
 const Index = () => {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  const handlePlanSelection = (planId: string) => {
-    setSelectedPlan(planId);
-    navigate(`/register?type=business&plan=${planId}`);
-  };
-
-  const plans = [
-    {
-      id: 'starter',
-      name: 'Starter',
-      price: '$29',
-      period: '/mes',
-      description: 'Perfecto para pequeños comercios que inician en fidelización',
-      features: [
-        'Hasta 100 clientes activos',
-        'Sistema básico de cashback',
-        'Referidos de 1 nivel',
-        'Reportes básicos',
-        'Soporte por email'
-      ],
-      popular: false,
-    },
-    {
-      id: 'pro',
-      name: 'Professional',
-      price: '$79',
-      period: '/mes',
-      description: 'Ideal para comercios en crecimiento con mayor volumen',
-      features: [
-        'Hasta 500 clientes activos',
-        'Cashback personalizado por producto',
-        'Referidos multinivel (3 niveles)',
-        'Reportes avanzados y analytics',
-        'Promociones especiales',
-        'Soporte prioritario',
-        'Integración con POS'
-      ],
-      popular: true,
-    },
-    {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: '$199',
-      period: '/mes',
-      description: 'Para grandes comercios y cadenas con múltiples sucursales',
-      features: [
-        'Clientes ilimitados',
-        'Múltiples sucursales',
-        'Cashback avanzado con IA',
-        'Referidos multinivel ilimitados',
-        'Dashboard ejecutivo completo',
-        'API personalizada',
-        'Soporte dedicado 24/7',
-        'Integración completa con sistemas'
-      ],
-      popular: false,
-    },
-  ];
 
   const stats = [
     {
@@ -207,78 +148,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 px-4" id="pricing">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
-              Planes diseñados para comercios de todos los tamaños
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Desde pequeños emprendimientos hasta grandes cadenas. 
-              Comienza gratis y escala según tu crecimiento.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {plans.map((plan, index) => (
-              <Card 
-                key={plan.id} 
-                className={`relative overflow-hidden transition-all duration-300 hover:shadow-2xl ${
-                  plan.popular 
-                    ? 'border-2 border-primary shadow-xl scale-105' 
-                    : 'hover:border-primary/30'
-                }`}
-              >
-                {plan.popular && (
-                  <Badge className="absolute top-4 right-4 bg-primary">
-                    Más Popular
-                  </Badge>
-                )}
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                  <CardDescription className="text-sm min-h-[60px]">
-                    {plan.description}
-                  </CardDescription>
-                  <div className="flex items-baseline space-x-1">
-                    <span className="text-4xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground">{plan.period}</span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center space-x-3">
-                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className={`w-full ${
-                      plan.popular
-                        ? ''
-                        : 'variant-secondary'
-                    }`}
-                    variant={plan.popular ? 'default' : 'secondary'}
-                    onClick={() => handlePlanSelection(plan.id)}
-                  >
-                    Comenzar con {plan.name}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <p className="text-muted-foreground">
-              ¿Eres cliente? Tu comercio favorito te proporcionará acceso a la plataforma
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="bg-muted py-12 px-4">
