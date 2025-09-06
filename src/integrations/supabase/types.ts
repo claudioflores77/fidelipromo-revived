@@ -114,6 +114,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "customer_balances_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "customer_balances_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -218,6 +225,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "referral_earnings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "referral_earnings_referred_customer_id_fkey"
             columns: ["referred_customer_id"]
             isOneToOne: false
@@ -289,6 +303,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "transactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transactions_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -323,7 +344,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      businesses_public: {
+        Row: {
+          business_name: string | null
+          business_type: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_active: boolean | null
+          logo_url: string | null
+        }
+        Insert: {
+          business_name?: string | null
+          business_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          logo_url?: string | null
+        }
+        Update: {
+          business_name?: string | null
+          business_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          logo_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_referral_code: {
