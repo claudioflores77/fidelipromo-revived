@@ -9,6 +9,8 @@ interface BusinessData {
   business_name: string;
   business_type: string;
   plan: string;
+  phone: string;
+  address: string;
 }
 
 interface CustomerData {
@@ -21,17 +23,56 @@ type AdditionalSignupData = BusinessData | CustomerData;
 
 
 export const useAuth = () => {
-  const { session, setSession, userType, setUserType, loading, setLoading } = useStore();
+  const {
+    session, setSession,
+    userType, setUserType,
+    businessId, setBusinessId,
+    role, setRole,
+    loading, setLoading
+  } = useStore();
   const user = session;
 
   const fetchUserType = useCallback(async (userId: string) => {
-    const { data: profile } = await supabase
+    // Primero, obtenemos el tipo de usuario
+    const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('user_type')
       .eq('user_id', userId)
       .single();
-    setUserType(profile?.user_type || null);
-  }, [setUserType]);
+
+    if (profileError) {
+      console.error("Error fetching user type:", profileError);
+      setUserType(null);
+      setBusinessId(null);
+      setRole(null);
+      return;
+    }
+
+    const fetchedUserType = profile?.user_type || null;
+    setUserType(fetchedUserType);
+
+    // Si es un usuario de comercio, obtenemos su rol y business_id
+    if (fetchedUserType === 'business') {
+      const { data: businessUser, error: businessUserError } = await supabase
+        .from('business_users')
+        .select('business_id, role')
+        .eq('user_id', userId)
+        .single();
+
+      if (businessUserError) {
+        console.error("Error fetching business user info:", businessUserError);
+        setBusinessId(null);
+        setRole(null);
+        return;
+      }
+
+      setBusinessId(businessUser.business_id);
+      setRole(businessUser.role);
+    } else {
+      setBusinessId(null);
+      setRole(null);
+    }
+  }, [setUserType, setBusinessId, setRole]);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
@@ -71,6 +112,8 @@ export const useAuth = () => {
           user_id: data.user.id,
           business_name: businessData.business_name,
           business_type: businessData.business_type,
+          phone: businessData.phone,
+          address: businessData.address,
           email: email,
           subscription_plan: businessData.plan,
         });
@@ -100,6 +143,8 @@ export const useAuth = () => {
     await supabase.auth.signOut();
     setSession(null);
     setUserType(null);
+    setBusinessId(null);
+    setRole(null);
   };
 
   const checkSession = useCallback(async () => {
@@ -128,5 +173,5 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, [checkSession, fetchUserType, setSession, setLoading, setUserType]);
 
-  return { user, userType, loading, signIn, signUp, signOut };
+  return { user, userType, businessId, role, loading, signIn, signUp, signOut };
 };

@@ -4,12 +4,20 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Gift, TrendingUp, CreditCard, Settings, Star, UserPlus } from "lucide-react";
+import { Users, Gift, TrendingUp, CreditCard, Settings, Star, UserPlus, Shield } from "lucide-react";
 import CustomerRegistrationForm from "@/components/CustomerRegistrationForm";
+import TeamManagement from "@/components/TeamManagement";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, userType, loading, signOut } = useAuth();
+  const { user, userType, loading, signOut, role } = useAuth();
 
   useEffect(() => {
     if (!loading && (!user || userType !== 'business')) {
@@ -175,6 +183,33 @@ const Dashboard = () => {
               </Button>
             </CardContent>
           </Card>
+
+          {role === 'admin' && (
+            <Dialog>
+              <Card className="border-border/50 bg-background/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Shield className="w-5 h-5 mr-2 text-primary" />
+                    Gestión de Equipo
+                  </CardTitle>
+                  <CardDescription>
+                    Invita y gestiona los roles de tu equipo
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DialogTrigger asChild>
+                    <Button className="w-full">Gestionar Equipo</Button>
+                  </DialogTrigger>
+                </CardContent>
+              </Card>
+              <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Gestión de Equipo</DialogTitle>
+                </DialogHeader>
+                <TeamManagement />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         {/* Coming Soon Features */}
