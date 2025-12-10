@@ -67,7 +67,7 @@ export const useAuth = () => {
       }
 
       setBusinessId(businessUser.business_id);
-      setRole(businessUser.role);
+      setRole(businessUser.role as 'admin' | 'operator');
     } else {
       setBusinessId(null);
       setRole(null);

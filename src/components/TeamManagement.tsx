@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, Trash2 } from 'lucide-react';
 
@@ -13,15 +14,6 @@ type BusinessUser = {
   id: string;
   email: string;
   role: 'admin' | 'operator';
-};
-
-type SupabaseBusinessUser = {
-  id: string;
-  user_id: string;
-  role: 'admin' | 'operator';
-  users: {
-    email: string;
-  };
 };
 
 
@@ -40,15 +32,16 @@ const TeamManagement = () => {
     try {
       const { data, error } = await supabase
         .from('business_users')
-        .select('id, user_id, role, users(email)')
+        .select('id, user_id, role')
         .eq('business_id', businessId);
 
       if (error) throw error;
 
-      const members = data.map((item: SupabaseBusinessUser) => ({
-        id: item.user_id,
-        email: item.users.email,
-        role: item.role,
+      // For now, we'll use user_id as identifier - email lookup would need a separate query
+      const members: BusinessUser[] = (data || []).map((item) => ({
+        id: item.user_id || item.id,
+        email: `Usuario ${item.user_id?.slice(0, 8) || 'N/A'}`,
+        role: item.role as 'admin' | 'operator',
       }));
       setTeamMembers(members);
     } catch (error) {
@@ -71,8 +64,20 @@ const TeamManagement = () => {
     e.preventDefault();
     if (!inviteEmail || !businessId) return;
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(inviteEmail)) {
+      toast({
+        title: "Email inválido",
+        description: "Por favor ingresa un email válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsInviting(true);
     try {
+      // Call the RPC function to add user to business
       const { error } = await supabase.rpc('add_user_to_business', {
         p_business_id: businessId,
         p_email: inviteEmail,
@@ -86,7 +91,7 @@ const TeamManagement = () => {
         description: `${inviteEmail} ha sido añadido al equipo.`,
       });
       setInviteEmail('');
-      fetchTeamMembers(); // Refresh the list
+      fetchTeamMembers();
     } catch (error) {
       const supabaseError = error as { message?: string };
       toast({
@@ -114,7 +119,7 @@ const TeamManagement = () => {
         .from('business_users')
         .delete()
         .eq('user_id', userIdToDelete)
-        .eq('business_id', businessId);
+        .eq('business_id', businessId!);
 
       if (error) throw error;
 
@@ -122,7 +127,7 @@ const TeamManagement = () => {
         title: "Usuario eliminado",
         description: "El miembro del equipo ha sido eliminado.",
       });
-      fetchTeamMembers(); // Refresh the list
+      fetchTeamMembers();
     } catch (error) {
       const supabaseError = error as { message?: string };
       toast({
