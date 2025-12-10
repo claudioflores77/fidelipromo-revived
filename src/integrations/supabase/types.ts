@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      business_users: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          id: string
+          role: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          id?: string
+          role: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_users_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           address: string | null
@@ -111,13 +146,6 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "customer_balances_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {
@@ -225,13 +253,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "referral_earnings_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "referral_earnings_referred_customer_id_fkey"
             columns: ["referred_customer_id"]
             isOneToOne: false
@@ -303,13 +324,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "transactions_business_id_fkey"
-            columns: ["business_id"]
-            isOneToOne: false
-            referencedRelation: "businesses_public"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "transactions_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -344,42 +358,10 @@ export type Database = {
       }
     }
     Views: {
-      businesses_public: {
-        Row: {
-          business_name: string | null
-          business_type: string | null
-          created_at: string | null
-          description: string | null
-          id: string | null
-          is_active: boolean | null
-          logo_url: string | null
-        }
-        Insert: {
-          business_name?: string | null
-          business_type?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          logo_url?: string | null
-        }
-        Update: {
-          business_name?: string | null
-          business_type?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          is_active?: boolean | null
-          logo_url?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      generate_referral_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_referral_code: { Args: never; Returns: string }
     }
     Enums: {
       referral_level: "level_1" | "level_2" | "level_3"
