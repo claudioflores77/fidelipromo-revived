@@ -1,138 +1,93 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useStore } from '@/store';
+import { User } from '@supabase/supabase-js';
 
 type UserType = 'customer' | 'business';
 
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  userType: UserType | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, userType: UserType, additionalData?: any) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
+interface BusinessData {
+  business_name: string;
+  business_type: string;
+  plan: string;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-interface AuthProviderProps {
-  children: ReactNode;
+interface CustomerData {
+  first_name: string;
+  last_name: string;
+  referral_code?: string;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [userType, setUserType] = useState<UserType | null>(null);
-  const [loading, setLoading] = useState(true);
+type AdditionalSignupData = BusinessData | CustomerData;
 
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user type from profile
-          setTimeout(async () => {
-            const { data: profile } = await supabase
-              .from('user_profiles')
-              .select('user_type')
-              .eq('user_id', session.user.id)
-              .single();
-            
-            setUserType(profile?.user_type || null);
-          }, 0);
-        } else {
-          setUserType(null);
-        }
-        
-        setLoading(false);
-      }
-    );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        setTimeout(async () => {
-          const { data: profile } = await supabase
-            .from('user_profiles')
-            .select('user_type')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          setUserType(profile?.user_type || null);
-          setLoading(false);
-        }, 0);
-      } else {
-        setLoading(false);
-      }
-    });
+export const useAuth = () => {
+  const { session, setSession, userType, setUserType, loading, setLoading } = useStore();
+  const user = session;
 
-    return () => subscription.unsubscribe();
-  }, []);
+  const fetchUserType = useCallback(async (userId: string) => {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('user_type')
+      .eq('user_id', userId)
+      .single();
+    setUserType(profile?.user_type || null);
+  }, [setUserType]);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    if (data.user) {
+      await fetchUserType(data.user.id);
+    }
+    setLoading(false);
     return { error };
   };
 
-  const signUp = async (email: string, password: string, userType: UserType, additionalData: any = {}) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
+  const signUp = async (email: string, password: string, userType: UserType, additionalData: AdditionalSignupData) => {
+    setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo: `${window.location.origin}/`,
         data: {
           user_type: userType,
           ...additionalData
-        }
-      }
+        },
+      },
     });
 
     if (!error && data.user) {
-      // Create user profile
-      await supabase
-        .from('user_profiles')
-        .insert({
-          user_id: data.user.id,
-          user_type: userType
-        });
+      // Create a profile entry
+      await supabase.from('user_profiles').insert({ user_id: data.user.id, user_type: userType });
 
-      // Create specific profile based on user type
+      // Create business or customer entry
       if (userType === 'business') {
-        await supabase
-          .from('businesses')
-          .insert({
-            user_id: data.user.id,
-            business_name: additionalData.business_name || '',
-            business_type: additionalData.business_type || '',
-            email: email,
-            subscription_plan: additionalData.plan || 'starter'
-          });
+        const businessData = additionalData as BusinessData;
+        await supabase.from('businesses').insert({
+          user_id: data.user.id,
+          business_name: businessData.business_name,
+          business_type: businessData.business_type,
+          email: email,
+          subscription_plan: businessData.plan,
+        });
       } else if (userType === 'customer') {
+        const customerData = additionalData as CustomerData;
         const referralCode = await generateReferralCode();
-        await supabase
-          .from('customers')
-          .insert({
-            user_id: data.user.id,
-            first_name: additionalData.first_name || '',
-            last_name: additionalData.last_name || '',
-            referral_code: referralCode,
-            referred_by_code: additionalData.referral_code || null
-          });
+        await supabase.from('customers').insert({
+          user_id: data.user.id,
+          first_name: customerData.first_name,
+          last_name: customerData.last_name,
+          referral_code: referralCode,
+          referred_by_code: customerData.referral_code || null,
+        });
       }
+      setUserType(userType);
     }
-
+    setLoading(false);
     return { error };
   };
 
@@ -143,25 +98,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setSession(null);
+    setUserType(null);
   };
 
-  const value = {
-    user,
-    session,
-    userType,
-    loading,
-    signIn,
-    signUp,
-    signOut,
-  };
+  const checkSession = useCallback(async () => {
+    setLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    setSession(session?.user ?? null);
+    if (session?.user) {
+      await fetchUserType(session.user.id);
+    }
+    setLoading(false);
+  }, [setSession, setLoading, fetchUserType]);
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  useEffect(() => {
+    checkSession();
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session?.user ?? null);
+      if (session?.user) {
+        await fetchUserType(session.user.id);
+      } else {
+        setUserType(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [checkSession, fetchUserType, setSession, setLoading, setUserType]);
+
+  return { user, userType, loading, signIn, signUp, signOut };
 };

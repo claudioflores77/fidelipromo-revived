@@ -1,57 +1,61 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Users, TrendingUp, Star, DollarSign, ArrowRight, Zap, Shield, Share2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Users, TrendingUp, Star, DollarSign, ArrowRight, Zap, Shield, Share2 } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   const stats = [
     {
       icon: Users,
-      title: "Comercios Activos",
+      title: t('active_businesses'),
       value: "500+",
-      growth: "+25% este mes"
+      growth: t('this_month')
     },
     {
       icon: DollarSign,
-      title: "Cashback Distribuido",
+      title: t('cashback_distributed'),
       value: "$45,000",
-      growth: "+40% vs mes anterior"
+      growth: t('vs_last_month')
     },
     {
       icon: TrendingUp,
-      title: "Ventas Incrementales",
+      title: t('incremental_sales'),
       value: "35%",
-      growth: "promedio por comercio"
+      growth: t('avg_per_business')
     },
     {
       icon: Star,
-      title: "Satisfacción Cliente",
+      title: t('customer_satisfaction'),
       value: "4.8/5",
-      growth: "98% lo recomiendan"
+      growth: t('recommend_it')
     }
   ];
 
   const features = [
     {
       icon: Zap,
-      title: "Cashback Inteligente",
-      description: "Cada compra genera un porcentaje de vuelta que se acumula como saldo para el próximo consumo en tu negocio."
+      title: t('intelligent_cashback'),
+      description: t('intelligent_cashback_desc')
     },
     {
       icon: Share2,
-      title: "Referidos Multinivel",
-      description: "Tus clientes se convierten en embajadores. Hasta 3 niveles de comisiones por referir nuevos compradores."
+      title: t('multilevel_referrals'),
+      description: t('multilevel_referrals_desc')
     },
     {
       icon: Shield,
-      title: "Sin Apps que Descargar",
-      description: "Web App progresiva (PWA) que funciona desde cualquier navegador y se puede instalar como una app nativa."
+      title: t('no_apps_to_download'),
+      description: t('no_apps_to_download_desc')
     }
   ];
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,16 +71,18 @@ const Index = () => {
             </span>
           </div>
           <div className="flex space-x-4">
-            <Button 
-              variant="ghost" 
+            <Button variant="ghost" onClick={() => changeLanguage('en')}>EN</Button>
+            <Button variant="ghost" onClick={() => changeLanguage('es')}>ES</Button>
+            <Button
+              variant="ghost"
               onClick={() => navigate('/login')}
             >
-              Iniciar Sesión (Clientes)
+              {t('customer_login')}
             </Button>
-            <Button 
+            <Button
               onClick={() => navigate('/register/business')}
             >
-              Registrar Comercio
+              {t('register_business')}
             </Button>
           </div>
         </div>
@@ -86,28 +92,27 @@ const Index = () => {
       <section className="py-20 px-4">
         <div className="container mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-            Transforma cada cliente en tu mejor promotor
+            {t('main_heading')}
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            FideliPromo fusiona cashback inteligente con referidos multinivel. 
-            Más que fidelización: un ecosistema de crecimiento orgánico para tu negocio en Resistencia.
+            {t('hero_description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               onClick={() => navigate('/register/business')}
               className="text-lg px-8 py-4"
             >
-              Prueba Gratuita 30 Días
+              {t('try_free_30_days')}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               variant="outline"
               onClick={() => navigate('/demo')}
               className="text-lg px-8 py-4"
             >
-              Ver Demo
+              {t('view_demo')}
             </Button>
           </div>
 
@@ -159,10 +164,10 @@ const Index = () => {
             <span className="text-2xl font-bold">FideliPromo</span>
           </div>
           <p className="text-muted-foreground mb-4">
-            Tu aliado estratégico en fidelización y crecimiento
+            {t('your_strategic_ally')}
           </p>
           <p className="text-sm text-muted-foreground">
-            © 2024 FideliPromo. Todos los derechos reservados. Hecho en Resistencia, Chaco.
+            {t('rights_reserved')}
           </p>
         </div>
       </footer>
