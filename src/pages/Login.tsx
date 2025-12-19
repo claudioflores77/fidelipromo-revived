@@ -7,25 +7,34 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { useStore } from "@/store";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, user, userType, loading: authLoading } = useAuth();
+  const { signIn, user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { contexts, selectedContext, setSelectedContext } = useStore();
 
-  // Redirect if already logged in
+  // Redirect if a context is already selected or determined
   useEffect(() => {
-    if (!authLoading && user && userType) {
-      if (userType === 'business') {
-        navigate('/dashboard');
-      } else if (userType === 'customer') {
-        navigate('/customer');
+    if (!authLoading && user) {
+      if (selectedContext) {
+        const destination = selectedContext.type === 'business' ? '/dashboard' : '/customer';
+        navigate(destination);
+      } else if (contexts.length > 0) {
+        if (contexts.length === 1) {
+          setSelectedContext(contexts[0]);
+          const destination = contexts[0].type === 'business' ? '/dashboard' : '/customer';
+          navigate(destination);
+        } else {
+          navigate('/select-context');
+        }
       }
     }
-  }, [user, userType, authLoading, navigate]);
+  }, [user, contexts, selectedContext, authLoading, navigate, setSelectedContext]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +50,7 @@ const Login = () => {
           variant: "destructive",
         });
       }
+      // Redirection is handled by the useEffect hook
     } catch (error) {
       toast({
         title: "Error",
