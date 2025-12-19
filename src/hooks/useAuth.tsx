@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useStore } from '@/store';
+import { useStore, AppContext } from '@/store';
 import { User } from '@supabase/supabase-js';
 
 type UserType = 'customer' | 'business';
@@ -28,51 +28,61 @@ export const useAuth = () => {
     userType, setUserType,
     businessId, setBusinessId,
     role, setRole,
-    loading, setLoading
+    loading, setLoading,
+    setContexts, setSelectedContext
   } = useStore();
   const user = session;
 
-  const fetchUserType = useCallback(async (userId: string) => {
-    // Primero, obtenemos el tipo de usuario
-    const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('user_type')
+  const fetchUserContexts = useCallback(async (userId: string) => {
+    const contexts: AppContext[] = [];
+
+    // Check for business contexts
+    const { data: businessUsers, error: businessUsersError } = await supabase
+      .from('business_users')
+      .select(`
+        business_id,
+        role,
+        businesses (
+          business_name
+        )
+      `)
+      .eq('user_id', userId);
+
+    if (businessUsersError) {
+      console.error("Error fetching business contexts:", businessUsersError);
+    } else if (businessUsers) {
+      businessUsers.forEach((bu: any) => {
+        contexts.push({
+          type: 'business',
+          id: bu.business_id,
+          name: bu.businesses.business_name,
+          role: bu.role,
+        });
+      });
+    }
+
+    // Check for customer context
+    const { data: customer, error: customerError } = await supabase
+      .from('customers')
+      .select('id')
       .eq('user_id', userId)
       .single();
 
-    if (profileError) {
-      console.error("Error fetching user type:", profileError);
-      setUserType(null);
-      setBusinessId(null);
-      setRole(null);
-      return;
+    if (customerError && customerError.code !== 'PGRST116') { // Ignore 'not found' errors
+      console.error("Error fetching customer context:", customerError);
+    } else if (customer) {
+      contexts.push({
+        type: 'customer',
+        id: customer.id,
+      });
     }
 
-    const fetchedUserType = profile?.user_type || null;
-    setUserType(fetchedUserType);
-
-    // Si es un usuario de comercio, obtenemos su rol y business_id
-    if (fetchedUserType === 'business') {
-      const { data: businessUser, error: businessUserError } = await supabase
-        .from('business_users')
-        .select('business_id, role')
-        .eq('user_id', userId)
-        .single();
-
-      if (businessUserError) {
-        console.error("Error fetching business user info:", businessUserError);
-        setBusinessId(null);
-        setRole(null);
-        return;
-      }
-
-      setBusinessId(businessUser.business_id);
-      setRole(businessUser.role as 'admin' | 'operator');
-    } else {
-      setBusinessId(null);
-      setRole(null);
-    }
-  }, [setUserType, setBusinessId, setRole]);
+    setContexts(contexts);
+    // Clear old single-role state
+    setUserType(null);
+    setBusinessId(null);
+    setRole(null);
+  }, [setContexts, setUserType, setBusinessId, setRole]);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
@@ -81,7 +91,7 @@ export const useAuth = () => {
       password,
     });
     if (data.user) {
-      await fetchUserType(data.user.id);
+      await fetchUserContexts(data.user.id);
     }
     setLoading(false);
     return { error };
@@ -145,6 +155,8 @@ export const useAuth = () => {
     setUserType(null);
     setBusinessId(null);
     setRole(null);
+    setContexts([]);
+    setSelectedContext(null);
   };
 
   const checkSession = useCallback(async () => {
@@ -152,10 +164,10 @@ export const useAuth = () => {
     const { data: { session } } = await supabase.auth.getSession();
     setSession(session?.user ?? null);
     if (session?.user) {
-      await fetchUserType(session.user.id);
+      await fetchUserContexts(session.user.id);
     }
     setLoading(false);
-  }, [setSession, setLoading, fetchUserType]);
+  }, [setSession, setLoading, fetchUserContexts]);
 
   useEffect(() => {
     checkSession();
@@ -163,15 +175,17 @@ export const useAuth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session?.user ?? null);
       if (session?.user) {
-        await fetchUserType(session.user.id);
+        await fetchUserContexts(session.user.id);
       } else {
         setUserType(null);
+        setContexts([]);
+        setSelectedContext(null);
       }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [checkSession, fetchUserType, setSession, setLoading, setUserType]);
+  }, [checkSession, fetchUserContexts, setSession, setLoading, setUserType, setContexts, setSelectedContext]);
 
   return { user, userType, businessId, role, loading, signIn, signUp, signOut };
 };

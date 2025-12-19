@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import BusinessRegister from "./pages/BusinessRegister";
+import SelectContext from "./pages/SelectContext";
 
 import Demo from "./pages/Demo";
 import Dashboard from "./pages/Dashboard";
@@ -23,6 +24,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/select-context" element={<SelectContext />} />
           <Route path="/register" element={<BusinessRegister />} />
           <Route path="/register/business" element={<BusinessRegister />} />
           <Route path="/demo" element={<Demo />} />
