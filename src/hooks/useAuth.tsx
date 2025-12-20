@@ -118,29 +118,61 @@ export const useAuth = () => {
       // Create business or customer entry
       if (userType === 'business') {
         const businessData = additionalData as BusinessData;
-        await supabase.from('businesses').insert({
-          user_id: data.user.id,
-          business_name: businessData.business_name,
-          business_type: businessData.business_type,
-          phone: businessData.phone,
-          address: businessData.address,
-          email: email,
-          subscription_plan: businessData.plan,
-        });
+        const { data: newBusiness } = await supabase
+          .from('businesses')
+          .insert({
+            user_id: data.user.id,
+            business_name: businessData.business_name,
+            business_type: businessData.business_type,
+            phone: businessData.phone,
+            address: businessData.address,
+            email: email,
+            subscription_plan: businessData.plan,
+          })
+          .select()
+          .single();
+
+        if (newBusiness) {
+          await supabase.from('business_users').insert({
+            business_id: newBusiness.id,
+            user_id: data.user.id,
+            role: 'admin'
+          });
+        }
       } else if (userType === 'customer') {
         const customerData = additionalData as CustomerData;
         const referralCode = await generateReferralCode();
+
+        let referrerId = null;
+        if (customerData.referral_code) {
+          const { data: referrer } = await supabase
+            .from('customers')
+            .select('id')
+            .eq('referral_code', customerData.referral_code)
+            .single();
+
+          referrerId = referrer?.id;
+        }
+
         await supabase.from('customers').insert({
           user_id: data.user.id,
           first_name: customerData.first_name,
           last_name: customerData.last_name,
           referral_code: referralCode,
           referred_by_code: customerData.referral_code || null,
+          referred_by_customer_id: referrerId,
         });
       }
       setUserType(userType);
     }
     setLoading(false);
+    return { error };
+  };
+
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
     return { error };
   };
 
@@ -187,5 +219,5 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, [checkSession, fetchUserContexts, setSession, setLoading, setUserType, setContexts, setSelectedContext]);
 
-  return { user, userType, businessId, role, loading, signIn, signUp, signOut };
+  return { user, userType, businessId, role, loading, signIn, signUp, signOut, resetPassword };
 };

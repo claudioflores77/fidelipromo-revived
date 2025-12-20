@@ -1,33 +1,35 @@
-import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const businessRegisterSchema = z.object({
+  businessName: z.string().min(2, { message: "El nombre del comercio es obligatorio." }),
+  email: z.string().email({ message: "Por favor, introduce un email válido." }),
+  password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
+  confirmPassword: z.string(),
+  businessType: z.string().min(1, { message: "Debes seleccionar un tipo de negocio." }),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  plan: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden.",
+  path: ["confirmPassword"],
+});
 
 const BusinessRegister = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { signUp } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-
-  const selectedPlan = searchParams.get('plan') || 'starter';
-
-  const [formData, setFormData] = useState({
-    businessName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    businessType: '',
-    phone: '',
-    address: '',
-    plan: selectedPlan
-  });
 
   const businessTypes = [
     'Restaurante',
@@ -42,40 +44,32 @@ const BusinessRegister = () => {
     'Otro'
   ];
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  const selectedPlan = searchParams.get('plan') || 'starter';
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Las contraseñas no coinciden",
-        variant: "destructive",
-      });
-      return;
-    }
+  const form = useForm<z.infer<typeof businessRegisterSchema>>({
+    resolver: zodResolver(businessRegisterSchema),
+    defaultValues: {
+      businessName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      businessType: '',
+      phone: '',
+      address: '',
+      plan: selectedPlan,
+    },
+  });
 
-    if (formData.password.length < 6) {
-      toast({
-        title: "Error",
-        description: "La contraseña debe tener al menos 6 caracteres",
-        variant: "destructive",
-      });
-      return;
-    }
+  const { isSubmitting } = form.formState;
 
-    setLoading(true);
-
+  const handleSubmit = async (values: z.infer<typeof businessRegisterSchema>) => {
     try {
-      const { error } = await signUp(formData.email, formData.password, 'business', {
-        business_name: formData.businessName,
-        business_type: formData.businessType,
-        phone: formData.phone,
-        address: formData.address,
-        plan: formData.plan
+      const { error } = await signUp(values.email, values.password, 'business', {
+        business_name: values.businessName,
+        business_type: values.businessType,
+        phone: values.phone || '',
+        address: values.address || '',
+        plan: values.plan
       });
 
       if (error) {
@@ -97,8 +91,6 @@ const BusinessRegister = () => {
         description: "Ocurrió un error inesperado",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -118,130 +110,110 @@ const BusinessRegister = () => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="businessName">Nombre del Comercio</Label>
-              <Input
-                id="businessName"
-                type="text"
-                value={formData.businessName}
-                onChange={(e) => handleInputChange('businessName', e.target.value)}
-                required
-                placeholder="Ej: Mi Tienda"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email Comercial</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                required
-                placeholder="comercio@ejemplo.com"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="phone">Teléfono</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="Ej: +54 3722 123456"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="businessType">Tipo de Negocio</Label>
-              <Select 
-                value={formData.businessType} 
-                onValueChange={(value) => handleInputChange('businessType', value)}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona el tipo de negocio" />
-                </SelectTrigger>
-                <SelectContent>
-                  {businessTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="address">Dirección</Label>
-              <Input
-                id="address"
-                type="text"
-                value={formData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                placeholder="Calle 123, Resistencia, Chaco"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                required
-                minLength={6}
-                placeholder="Mínimo 6 caracteres"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                required
-                placeholder="Repite la contraseña"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="plan">Plan Seleccionado</Label>
-              <Select 
-                value={formData.plan} 
-                onValueChange={(value) => handleInputChange('plan', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="starter">Starter - $29/mes</SelectItem>
-                  <SelectItem value="pro">Professional - $79/mes</SelectItem>
-                  <SelectItem value="enterprise">Enterprise - $199/mes</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Registrando...
-                </>
-              ) : (
-                'Crear Cuenta de Comercio'
-              )}
-            </Button>
-          </form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <FormField control={form.control} name="businessName" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nombre del Comercio</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: Mi Tienda" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}/>
+              <FormField control={form.control} name="email" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Comercial</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="comercio@ejemplo.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}/>
+              <FormField control={form.control} name="phone" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Teléfono</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ej: +54 3722 123456" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}/>
+              <FormField control={form.control} name="businessType" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Negocio</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona el tipo de negocio" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {businessTypes.map((type) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}/>
+              <FormField control={form.control} name="address" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dirección</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Calle 123, Resistencia, Chaco" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}/>
+              <FormField control={form.control} name="password" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contraseña</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Mínimo 6 caracteres" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}/>
+              <FormField control={form.control} name="confirmPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirmar Contraseña</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Repite la contraseña" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}/>
+              <FormField control={form.control} name="plan" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Plan Seleccionado</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="starter">Starter - $29/mes</SelectItem>
+                      <SelectItem value="pro">Professional - $79/mes</SelectItem>
+                      <SelectItem value="enterprise">Enterprise - $199/mes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}/>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Registrando...
+                  </>
+                ) : (
+                  'Crear Cuenta de Comercio'
+                )}
+              </Button>
+            </form>
+          </Form>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">

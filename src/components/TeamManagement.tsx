@@ -77,18 +77,17 @@ const TeamManagement = () => {
 
     setIsInviting(true);
     try {
-      // First, find the user by email from user_profiles (we need their user_id)
-      // Note: This is a simplified approach - in production, you'd use an RPC function
-      // For now, we'll insert directly and rely on RLS
-      const { error } = await supabase
-        .from('business_users')
-        .insert({
-          business_id: businessId,
-          user_id: null, // Will need to be resolved via admin function
-          role: inviteRole,
-        });
+      const { data, error } = await supabase.rpc('invite_user_to_business', {
+        p_email: inviteEmail,
+        p_business_id: businessId,
+        p_role: inviteRole
+      });
 
       if (error) throw error;
+
+      if (data && data.error) {
+        throw new Error(data.error);
+      }
 
       toast({
         title: "Usuario añadido",
