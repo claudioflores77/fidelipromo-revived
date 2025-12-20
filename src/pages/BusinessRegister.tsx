@@ -32,15 +32,26 @@ const BusinessRegister = () => {
   const { toast } = useToast();
 
   const businessTypes = [
-    'Restaurante',
-    'Tienda de Ropa',
-    'Farmacia',
-    'Supermercado',
+    'Alimentos y Bebidas',
     'Belleza y Estética',
+    'Confiteria',
+    'Cotillon y Regalos',
+    'Electrodomesticos',
     'Electrónicos',
-    'Librería',
+    'Farmacia',
     'Ferretería',
+    'Gymnasio',
+    'Librería',
+    'Mantenimiento',
+    'Mercería',
+    'Muebles',
     'Panadería',
+    'Restaurante',
+    'Salud y Bienestar',
+    'Servicio Profesional',
+    'Servicio Técnico',
+    'Supermercado',
+    'Tienda de Ropa',
     'Otro'
   ];
 
