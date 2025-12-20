@@ -56,11 +56,19 @@ const CustomerRegistrationForm = ({ businessId, onSuccess }: CustomerRegistratio
       });
 
       if (authError) {
-        toast({
-          title: "Error al crear cuenta",
-          description: authError.message,
-          variant: "destructive",
-        });
+        if (authError.message.includes('User already registered')) {
+            toast({
+              title: "Error",
+              description: "Este email ya está registrado.",
+              variant: "destructive",
+            });
+        } else {
+            toast({
+              title: "Error al crear cuenta",
+              description: authError.message,
+              variant: "destructive",
+            });
+        }
         return;
       }
 

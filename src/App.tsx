@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import BusinessRegister from "./pages/BusinessRegister";
 import SelectContext from "./pages/SelectContext";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import EmailConfirmation from "./pages/EmailConfirmation";
 
 import Demo from "./pages/Demo";
 import Dashboard from "./pages/Dashboard";
@@ -24,6 +27,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/confirm-email" element={<EmailConfirmation />} />
           <Route path="/select-context" element={<SelectContext />} />
           <Route path="/register" element={<BusinessRegister />} />
           <Route path="/register/business" element={<BusinessRegister />} />

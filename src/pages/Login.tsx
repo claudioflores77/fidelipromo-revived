@@ -1,21 +1,26 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { useStore } from "@/store";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Por favor, introduce un email válido." }),
+  password: z.string().min(1, { message: "La contraseña es obligatoria." }),
+});
 
 const Login = () => {
   const navigate = useNavigate();
   const { signIn, user, loading: authLoading } = useAuth();
   const { toast } = useToast();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const { contexts, selectedContext, setSelectedContext } = useStore();
 
   // Redirect if a context is already selected or determined
@@ -36,12 +41,19 @@ const Login = () => {
     }
   }, [user, contexts, selectedContext, authLoading, navigate, setSelectedContext]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
+  const { isSubmitting } = form.formState;
+
+  const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(values.email, values.password);
 
       if (error) {
         toast({
@@ -49,6 +61,7 @@ const Login = () => {
           description: error.message,
           variant: "destructive",
         });
+        form.reset(); // Reset form on error to allow retries
       }
       // Redirection is handled by the useEffect hook
     } catch (error) {
@@ -57,8 +70,6 @@ const Login = () => {
         description: "Ocurrió un error inesperado",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -86,46 +97,55 @@ const Login = () => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="tu@email.com"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="tu@email.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Tu contraseña"
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Contraseña</FormLabel>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/forgot-password')}
+                        className="text-sm font-medium text-primary hover:underline"
+                      >
+                        ¿Olvidaste tu contraseña?
+                      </button>
+                    </div>
+                    <FormControl>
+                      <Input type="password" placeholder="Tu contraseña" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Iniciando sesión...
-                </>
-              ) : (
-                'Iniciar Sesión'
-              )}
-            </Button>
-          </form>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Iniciando sesión...
+                  </>
+                ) : (
+                  'Iniciar Sesión'
+                )}
+              </Button>
+            </form>
+          </Form>
 
           <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-muted-foreground">
