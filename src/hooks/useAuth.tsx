@@ -61,20 +61,21 @@ export const useAuth = () => {
       });
     }
 
-// Check for customer context
-const { data: customers, error: customerError } = await supabase
-  .from('customers')
-  .select('id')
-  .eq('user_id', userId);
+    // Check for customer context
+    const { data: customers, error: customerError } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('user_id', userId);
 
-if (customerError && customerError.code !== 'PGRST116') {
-  console.error("Error fetching customer context:", customerError);
-} else if (customers && customers.length > 0) {
-  contexts.push({
-    type: 'customer',
-    id: customers[0].id,
-  });
-}
+    if (customerError && customerError.code !== 'PGRST116') {
+      console.error("Error fetching customer context:", customerError);
+    } else if (customers && customers.length > 0) {
+      contexts.push({
+        type: 'customer',
+        id: customers[0].id,
+      });
+    }
+
     setContexts(contexts);
     // Clear old single-role state
     setUserType(null);
