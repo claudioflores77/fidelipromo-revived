@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useStore } from "@/store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +18,6 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-import { useStore } from "@/store";
-
-const Dashboard = () => {
-  const navigate = useNavigate();
   const { user, loading, signOut } = useAuth();
   const { selectedContext } = useStore();
 
@@ -31,11 +28,6 @@ const Dashboard = () => {
       navigate('/select-context');
     }
   }, [user, selectedContext, loading, navigate]);
-  useEffect(() => {
-    if (!loading && (!user || userType !== 'business')) {
-      navigate('/login');
-    }
-  }, [user, userType, loading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -136,7 +128,7 @@ const Dashboard = () => {
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-6">Registrar Nuevo Cliente</h2>
           <CustomerRegistrationForm 
-            businessId="temp-business-id" 
+            businessId={selectedContext?.type === 'business' ? selectedContext.id : ''} 
             onSuccess={() => {
               // Optionally refresh data or show success message
             }}
@@ -197,7 +189,7 @@ const Dashboard = () => {
           </Card>
 
           {selectedContext?.type === 'business' && selectedContext.role === 'admin' && (
-  <Dialog>
+            <Dialog>
               <Card className="border-border/50 bg-background/50 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center">
