@@ -196,8 +196,8 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {role === 'admin' && (
-            <Dialog>
+          {selectedContext?.type === 'business' && selectedContext.role === 'admin' && (
+  <Dialog>
               <Card className="border-border/50 bg-background/50 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center">
