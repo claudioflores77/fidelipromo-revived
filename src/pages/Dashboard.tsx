@@ -17,8 +17,20 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, userType, loading, signOut, role } = useAuth();
+import { useStore } from "@/store";
 
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user, loading, signOut } = useAuth();
+  const { selectedContext } = useStore();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    } else if (!loading && selectedContext?.type !== 'business') {
+      navigate('/select-context');
+    }
+  }, [user, selectedContext, loading, navigate]);
   useEffect(() => {
     if (!loading && (!user || userType !== 'business')) {
       navigate('/login');
