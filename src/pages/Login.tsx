@@ -25,21 +25,19 @@ const Login = () => {
 
   // Redirect if a context is already selected or determined
   useEffect(() => {
-  if (!authLoading && user) {
-    if (selectedContext) {
-      const destination = selectedContext.type === 'business' ? '/dashboard' : '/customer';
-      navigate(destination);
-    } else if (contexts.length > 0) {
-      if (contexts.length === 1) {
-        setSelectedContext(contexts[0]);
-        const destination = contexts[0].type === 'business' ? '/dashboard' : '/customer';
+    if (!authLoading && user) {
+      if (selectedContext) {
+        const destination = selectedContext.type === 'business' ? '/dashboard' : '/customer';
         navigate(destination);
-      } else {
-        navigate('/select-context');
+      } else if (contexts.length > 0) {
+        if (contexts.length === 1) {
+          setSelectedContext(contexts[0]);
+          const destination = contexts[0].type === 'business' ? '/dashboard' : '/customer';
+          navigate(destination);
+        } else {
+          navigate('/select-context');
+        }
       }
-    }
-  }
-}, [user, contexts, selectedContext, authLoading, navigate, setSelectedContext]);
     }
   }, [user, contexts, selectedContext, authLoading, navigate, setSelectedContext]);
 
