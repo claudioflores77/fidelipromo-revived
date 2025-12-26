@@ -75,7 +75,6 @@ if (customerError && customerError.code !== 'PGRST116') {
     id: customers[0].id,
   });
 }
-
     setContexts(contexts);
     // Clear old single-role state
     setUserType(null);
